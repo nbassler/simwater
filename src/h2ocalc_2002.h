@@ -84,7 +84,10 @@ int nmatrix[NEQ][NSPECIES] = {
     { 0, 1,-1, 0, 0,    0, 0,-1, 1, 0,    0, 0, 0, 0},/* OH  + H2   -> H    + H2O */
 
     /* v16-v20*/
-    { 0, 0,-1,-1, 0,    0, 1, 0, 1, 0,    0, 0, 0, 0},/* OH  + H2O2 -> H2O  + HO2 */
+    /* Note that reaction (16) in the 2002 paper does not make stochiometrically sense.
+       Instead reaction (16) from the 1997 paper was used, which probably is the correct one.
+     */
+    { 0, 0,-1,-1, 0,    0, 1, 0, 1, 0,    0, 0, 0, 0},/* OH  + H2O2 -> H2O  + HO2 : Possible error in ref. eq (16)*/
     { 0, 0,-1, 0, 1,    0,-1, 0, 1, 0,    0, 0, 0, 0},/* OH  + HO2  -> H2O  + O2  */
     { 0, 0,-1, 0, 1,   -1, 0, 0, 0, 1,    0, 0, 0, 0},/* OH  + O2-  -> OH-  + O2  */
     { 0, 0, 0, 1, 1,    0,-2, 0, 0, 0,    0, 0, 0, 0},/* 2HO2       -> H2O2 + O2  */
