@@ -4,28 +4,12 @@
 /* Configuration for water model.
    Niels Bassler <niels.bassler@fysik.su.se>
 
-   Typical cellular values:
-   pH  = 7.4, intra cellular
-   pO2 = ? TODO
+   Reference: https://dx.doi.org/10.6028%2Fjres.102.006
  */
-
-//#define NEQ 50 /* Number of equations */
-//#define NSPECIES 14 /* Number of species */
 
 #define NEQ      51 /* Number of equations */
 #define NSPECIES 14 /* Number of species */
-//#define NSTEP    100  /* Number of steps between pulses */
-//efine NPULSE   100   /* Number of pulses */
-#define NSTART   0
-#define SIMTIME  1.0e-2 /* time to be simulated in sec */
-//#define NSTOP    0.00002
-#define FREQ     1e6   /* 1 MHz blips */
-#define RSTART   5e-6  /* start after 5 musec */
-#define DOSER    1.00  /* dose rate in Gy/min */
-#define RESOL    2e-8  /* 20 nsec resolution */
 
-#define NA       6.02214129e23      /* Avogadro constant */
-#define EVJ      6.24150934e18      /* eV per joule */
 
 /* start conditions [mol/l] */
 float const ystart[NSPECIES] = {
@@ -49,22 +33,22 @@ float const ystart[NSPECIES] = {
 
 /* G-values at 25 deg C [#/100eV] */
 float const gval[NSPECIES] = {
-    2.645, /* A0  : e-   */
-    0.572, /* A1  : H    */
-    2.819, /* A2  : OH   */
-    0.646, /* A3  : H2O2 */
-    0,     /* A4  : O2   */
+    2.645,  /* A0  : e-   */
+    0.572,  /* A1  : H    */
+    2.819,  /* A2  : OH   */
+    0.646,  /* A3  : H2O2 */
+    0,      /* A4  : O2   */
 
-    0,     /* A5  : O2-  */
-    0,     /* A6  : HO2  */
-    0.447, /* A7  : H2   */
+    0,      /* A5  : O2-  */
+    0,      /* A6  : HO2  */
+    0.447,  /* A7  : H2   */
     -4.541, /* A8  : H2O  */
-    0,     /* A9  : OH-  */
+    0.430,  /* A9  : OH-  */
 
-    0,     /* A10 : HO2- */
-    3.075, /* A11 : H+   */
-    0.430, /* A12 : O-   */
-    0      /* A13 : O3-  */
+    0,      /* A10 : HO2- */
+    3.075,  /* A11 : H+   */
+    0.430,  /* A12 : O-   */
+    0       /* A13 : O3-  */
 };
 
 /* sochiometric matrix */

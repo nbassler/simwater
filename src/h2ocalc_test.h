@@ -1,5 +1,9 @@
-//#define NEQ 50 /* Number of equations */
-//#define NSPECIES 14 /* Number of species */
+#ifndef H2OCALC_TEST
+#define H2OCALC_TEST
+
+/*
+   Simplified tests for ODE solver.
+ */
 
 #define NEQ 4 /* Number of equations */
 #define NSPECIES 5 /* Number of species */
@@ -48,3 +52,6 @@ double rconst[NEQ] = {
     1e-1,
     1.03,
 };
+
+
+#endif /* H2OCALC_TEST */

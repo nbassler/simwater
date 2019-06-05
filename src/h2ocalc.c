@@ -7,6 +7,7 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv2.h>
 
+#include "defaults.h"
 #include "h2ocalc.h"
 //#include"h2ocalc_test.h"
 
@@ -20,9 +21,9 @@
 int nbprint(double x, double y[], int n) {
     int i;
     double sum = 0;
-    printf("%6.4f   ",x);
+    printf("%6.4f   ", x);
     for (i = 0; i < n; i++) {
-        printf("%6.2f ",y[i]);
+        printf("%6.2f ", y[i]);
         sum += y[i];
     }
     printf("  %6.2f\n",sum);
@@ -36,10 +37,10 @@ int nbeprint(double x, double y[], int n) {
 
     printf("%6.4e   ",x);
     for (i = 0; i < n; i++) {
-        printf("%6.2e ",y[i]);
+        printf("%6.2e ", y[i]);
         sum += y[i];
     }
-    printf("  %6.2e\n",sum);
+    printf("  %6.2e\n", sum);
     return 0;
 }
 
@@ -138,7 +139,6 @@ int main(int argc, char **argv) {
     int flagp = 0, flagl = 0, flagc = 1; /* default: print each tick */
 
     /* parse options */
-    //  strcpy(fname, "foobar.dat");
     opterr = 0;
     while ((c = getopt(argc, argv, "f:d:o:r:t:")) != -1) {
         switch(c) {
@@ -158,19 +158,19 @@ int main(int argc, char **argv) {
             flagc = 1;
             break;
         case 'f':
-            sscanf(optarg,"%lf",&freq);
+            sscanf(optarg, "%lf", &freq);
             break;
         case 'd':
-            sscanf(optarg,"%lf",&doser);
+            sscanf(optarg, "%lf", &doser);
             break;
         case 'o':
             fname = optarg; /* not implemented */
             break;
         case 'r':
-            sscanf(optarg,"%lf",&resol);
+            sscanf(optarg, "%lf", &resol);
             break;
         case 't':
-            sscanf(optarg,"%lf",&simtime);
+            sscanf(optarg, "%lf", &simtime);
             break;
         case '?':
             printf("Options:\n");
@@ -209,14 +209,14 @@ int main(int argc, char **argv) {
     pulse_left = (int) ((simtime-RSTART) * freq);
 
     /* print a header */
-    printf("# Frequency    : %.3e Hz \n",freq);
-    printf("# Period       : %.3e sec\n",period);
+    printf("# Frequency    : %.3e Hz \n", freq);
+    printf("# Period       : %.3e sec\n", period);
     printf("#\n");
-    printf("# Tick size    : %.3e sec\n",tick);
-    printf("# Time for sim : %.3e sec\n",simtime);
+    printf("# Tick size    : %.3e sec\n", tick);
+    printf("# Time for sim : %.3e sec\n", simtime);
     printf("#\n");
-    printf("# Dose rate    : %.3e Gy/min\n",doser );
-    printf("# Pulse size   : %.3e eV/l/pulse\n",dpulse );
+    printf("# Dose rate    : %.3e Gy/min\n", doser );
+    printf("# Pulse size   : %.3e eV/l/pulse\n", dpulse );
     printf("# Pulse count  : %i pulses\n", pulse_left);
     printf("#\n");
     printf("# Total delivered dose for this simulation\n");
@@ -228,7 +228,7 @@ int main(int argc, char **argv) {
         y[i] = ystart[i];
 
     /* Print first line with starting conditions. */
-    nbeprint(t,y,NSPECIES);
+    nbeprint(t, y, NSPECIES);
 
     /* loop over all pulses */
     while (pulse_left != 0) {
@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
         /* check if we are at a pulse time step */
         if (t >= ((pulse_counter * period) + RSTART)) {
             if (flagp) /* print per pulse (pre pulse) */
-                nbeprint(t,y,NSPECIES);
+                nbeprint(t, y, NSPECIES);
 
             printf("# Pulse! %i \n", pulse_left);
             for (j=0; j < NSPECIES; j++)
@@ -256,12 +256,12 @@ int main(int argc, char **argv) {
         }
 
         if (flagc) /* print per tick */
-            nbeprint(t,y,NSPECIES);
+            nbeprint(t, y, NSPECIES);
 
     } /* end pulses left iterator */
 
     if (flagl) /* print last */
-        nbeprint(t,y,NSPECIES);
+        nbeprint(t, y, NSPECIES);
 
     gsl_odeiv2_driver_free(d);
     return 0;
