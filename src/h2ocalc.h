@@ -12,7 +12,7 @@
 
 
 /* start conditions [mol/l] */
-float const ystart[NSPECIES] = {
+static const float ystart[NSPECIES] = {
     0e-6,  /* A0  : e-   */
     0,     /* A1  : H    */
     0,     /* A2  : OH   */
@@ -32,7 +32,7 @@ float const ystart[NSPECIES] = {
 };
 
 /* G-values at 25 deg C [#/100eV] */
-float const gval[NSPECIES] = {
+static const float gval[NSPECIES] = {
     2.645,  /* A0  : e-   */
     0.572,  /* A1  : H    */
     2.819,  /* A2  : OH   */
@@ -60,7 +60,7 @@ float const gval[NSPECIES] = {
 /* v3                   */
 /* ...                  */
 
-int nmatrix[NEQ][NSPECIES] = {
+static const int nmatrix[NEQ][NSPECIES] = {
     /* v1-v5*/
     /*0           4     5           9    10        14*/
     {-2, 0, 0, 0, 0,    0, 0, 1, 0, 2,    0, 0, 0, 0},/* e-  + e-   -> H2  + 2OH- */
@@ -111,7 +111,6 @@ int nmatrix[NEQ][NSPECIES] = {
     { 0, 0, 1, 0, 0,    0, 0, 0,-1, 1,    0, 0,-1, 0},/* O-   + H2O  -> OH-  + OH   */
     { 0, 0, 0, 0, 0,    1,-1, 0, 0, 0,    0, 1, 0, 0},/* HO2         -> O2-  + H+   */
 
-
     /* v36-v40*/
     { 0, 0, 0, 0, 0,   -1, 1, 0, 0, 0,    0,-1, 0, 0},/* O2-  + H+   -> HO2         */
     { 0, 0, 0, 0, 0,    1,-1, 0, 1,-1,    0, 0, 0, 0},/* HO2  + OH-  -> O2-  + H2O  */
@@ -119,14 +118,12 @@ int nmatrix[NEQ][NSPECIES] = {
     { 0, 1, 0, 0, 0,    0, 0,-1, 0, 1,    0, 0,-1, 0},/* O-   + H2   -> H    + OH-  */
     { 0, 0, 0,-1, 0,    1, 0, 0, 1, 0,    0, 0,-1, 0},/* O-   + H2O2 -> O2-  + H2O  */
 
-
     /* v41-v45*/
     { 0, 0,-1, 0, 0,    0, 1, 0, 0, 1,   -1, 0, 0, 0},/* OH   + HO2- -> OH-  + HO2  */
     { 0, 0,-1, 0, 0,    0, 0, 0, 0, 0,    1, 0,-1, 0},/* OH   + O-   -> HO2-        */
     {-1, 0, 0, 0, 0,    0, 0, 0, 0, 1,   -1, 0, 1, 0},/* e-   + HO2- -> O-   + OH-  */
     {-1, 0, 0, 0, 0,    0, 0, 0, 0, 2,    0, 0,-1, 0},/* e-   + O-   -> 2OH-        */
     { 0, 0, 0, 0,-1,    0, 0, 0, 0, 0,    0, 0,-1, 1},/* O-   + O2   -> O3-         */
-
 
     /* v46-v50*/
     { 0, 0, 0, 0, 1,    0, 0, 0, 0, 0,    0, 0, 1,-1},/* O3-         -> O2   + O-   */
@@ -149,7 +146,7 @@ int nmatrix[NEQ][NSPECIES] = {
 /*   1, */
 /* }; */
 
-double rconst[NEQ] = {
+static const double rconst[NEQ] = {
     /* v1-v5*/
     6.44e9,
     2.64e10,

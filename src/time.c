@@ -5,22 +5,21 @@
 #include "h2ocalc.h"
 
 
-double nbpulse(double tau,double T,double t) {
+double nbpulse(double tau, double T, double t) {
 
     int n;
     double temp;
 
-    temp = tau/T;
+    temp = tau / T;
     for (n = 1; n < 13; n++)
-        temp +=  2/(n * M_PI) * sin(M_PI * n * tau / T) * cos(2 * M_PI * n * t/T);
+        temp +=  2.0 / (n * M_PI) * sin(M_PI * n * tau / T) * cos(2.0 * M_PI * n * t / T);
     return temp;
-
 }
 
 
 int main(int argc, char **argv) {
 
-    double time=0;
+    double time = 0;
     double dt = 0.001;
     //int i;
 
@@ -30,7 +29,7 @@ int main(int argc, char **argv) {
     double ff = 3; // 10 Hz
     double duty = 0.5;
 
-    double tau,period;
+    double tau, period;
 
     period = 1 / ff;
     tau = duty * period;

@@ -50,11 +50,8 @@ int func (double t, const double y[],double f[], void *params) {
     int i,j,k;
     double rate[NEQ];
 
-    //printf("func\n");
-
     /* for each species ... */
     for (k = 0; k < NSPECIES; k++) {
-        //printf("SPECIES %i\n",k);
 
         f[k] = 0;
 
@@ -65,42 +62,23 @@ int func (double t, const double y[],double f[], void *params) {
             if (nmatrix[j][k] != 0) {
 
                 rate[j] = nmatrix [j][k]; /* build the final equation */
-                //printf("%3i ",nmatrix[j][k]);
 
                 /* add generate I equations */
                 rate[j] *= rconst[j]; /* get rate for reaction I_j */
 
-                //printf(" * k%i ",j);
                 for (i = 0; i < NSPECIES; i++) {
                     if (nmatrix[j][i] == -1 ) {
                         rate[j] *= y[i]; /* first order kinetics */
-                        //printf("* y[%i] ",i);
                     }
                     if (nmatrix[j][i] == -2 ) {
                         rate[j] *= y[i]*y[i]; // second order kinetics
-                        //printf("* y[%i]^2 ",i);
                     }
                 }
 
                 f[k] += rate[j];
-                //printf(" + \n");
             }
         }
-
-
-        //printf(" ----  k f[k]: %i     %e ---- \n",k,f[k]);
-
-        //    nbeprint(t,y,NSPECIES);
-        //    if (k ==8)
-        //      exit(0);
     }
-
-    //nbeprint(t,y,NSPECIES);
-    //nbeprint(t,f,NSPECIES);
-
-
-    /* add function for radiation, assumed in last bin */
-    //f[NEQ-1] = 0;
 
     return GSL_SUCCESS;
 }
@@ -193,7 +171,7 @@ int main(int argc, char **argv) {
 
 
     period = 1 / freq;
-    dpulse = (doser / 60.0) / freq * EVJ; // in eV per pulse per liter
+    dpulse = (doser / 60.0) / freq * EVJ; /* in eV per pulse per liter */
 
 
     if (period < resol) {
@@ -202,7 +180,7 @@ int main(int argc, char **argv) {
         exit(-1);
     }
 
-    /* find ticksize closest to the requested one */
+    /* find tick size closest to the requested one */
     tick = period/(round(period/ resol));
 
     /* number of pulses to be simulated */
