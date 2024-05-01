@@ -2,7 +2,7 @@
 #define H2OCALC_2002
 
 /* Configuration for water model at 4 deg C
-   Niels Bassler <niels.bassler@fysik.su.se>
+   Niels Bassler
 
    Reference: https://dx.doi.org/10.6028%2Fjres.107.015
  */
@@ -12,7 +12,7 @@
 
 
 /* start conditions [mol/l] */
-float const ystart[NSPECIES] = {
+static const float ystart[NSPECIES] = {
     0e-6,  /* A0  : e-   */
     0,     /* A1  : H    */
     0,     /* A2  : OH   */
@@ -32,7 +32,7 @@ float const ystart[NSPECIES] = {
 };
 
 /* G-values at 4 deg C [#/100eV] */
-float const gval[NSPECIES] = {
+static const float gval[NSPECIES] = {
     2.6666,  /* A0  : e-   */
     0.5645,  /* A1  : H    */
     2.7651,  /* A2  : OH   */
@@ -51,7 +51,7 @@ float const gval[NSPECIES] = {
     0        /* A13 : O3-  */
 };
 
-/* sochiometric matrix */
+/* stoichiometric matrix */
 
 /*     A0 A1 A2 A3 .... */
 /* v0                   */
@@ -60,7 +60,7 @@ float const gval[NSPECIES] = {
 /* v3                   */
 /* ...                  */
 
-int nmatrix[NEQ][NSPECIES] = {
+static const int nmatrix[NEQ][NSPECIES] = {
     /* v1-v5*/
     /*0           4     5           9    10        14*/
     {-2, 0, 0, 0, 0,    0, 0, 1, 0, 2,    0, 0, 0, 0},/* e-  + e-   -> H2  + 2OH- */
@@ -154,7 +154,7 @@ int nmatrix[NEQ][NSPECIES] = {
 
 /* rate constants at 4 deg C */
 
-double rconst[NEQ] = {
+static const double rconst[NEQ] = {
     /* v1-v5*/
     3.48e9,
     1.73e10,
