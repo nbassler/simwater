@@ -8,15 +8,10 @@
 #include <gsl/gsl_odeiv2.h>
 
 #include "defaults.h"
-#include "h2ocalc.h"
+#include "h2ocalc_2002.h"
 //#include"h2ocalc_test.h"
 
 /* gcc h2ocalc.c -o h2ocalc -lgsl -lgslcblas -lm -Wall  */
-
-/* struct ODE_param{ */
-/*   int a[NEQ];  /\* dont worry let just run with global vars for now *\/ */
-/*   float b[NEQ]; */
-/* }; */
 
 int nbprint(double x, double y[], int n);
 int nbeprint(double x, double y[], int n);
@@ -24,8 +19,6 @@ int func (double t, const double y[],double f[], void *params);
 int load_default_conc(const char *fname, double *y, int n);
 
 int main(int argc, char **argv) {
-    //  struct ODE_param *p = (struct ODE_params *) params;
-
     double dummy_param = 0;
     gsl_odeiv2_system sys = {func, NULL, NSPECIES, &dummy_param};
     gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&sys,
@@ -41,14 +34,15 @@ int main(int argc, char **argv) {
     double y[NSPECIES];
 
     double freq = FREQ;
-    double doser = DOSER;
+    double doserate = DOSER;
     double simtime = SIMTIME;
+    double rstart = RSTART;
     double resol = RESOL;
     double period = 0;
-    double dpulse = 0;
+    double dose_per_pulse = 0;
     double tick = 0;
-    double ta = 1e-3; /* plotting clocks*/
-    int pulse_left = 0;
+    // double ta = 1e-3; /* plotting clocks*/
+    int pulses_left = 0;
     int pulse_counter = 0;
     signed long int tick_counter = 0;
     char *fname;
@@ -57,7 +51,7 @@ int main(int argc, char **argv) {
 
     /* parse options */
     opterr = 0;
-    while ((c = getopt(argc, argv, "f:d:o:r:t:")) != -1) {
+    while ((c = getopt(argc, argv, "f:d:o:r:t:s:")) != -1) {
         switch(c) {
         case 'l':
             flagl = 1;
@@ -78,7 +72,7 @@ int main(int argc, char **argv) {
             sscanf(optarg, "%lf", &freq);
             break;
         case 'd':
-            sscanf(optarg, "%lf", &doser);
+            sscanf(optarg, "%lf", &doserate);
             break;
         case 'o':
             fname = optarg; /* not implemented */
@@ -89,16 +83,20 @@ int main(int argc, char **argv) {
         case 't':
             sscanf(optarg, "%lf", &simtime);
             break;
+        case 's':
+            sscanf(optarg, "%lf", &rstart);
+            break;
         case '?':
             printf("Options:\n");
             printf("  -p output per pulse\n");
-            printf("  -c output per tick\n");
+            printf("  -c output per tick (default)\n");
             printf("  -l only end of output\n");
             printf("  -f frequency [Hz]\n");
             printf("  -d dose rate [Gy/min]\n");
             printf("  -o output file\n");
             printf("  -r tick resolution [sec]\n");
             printf("  -t simulation time [sec]\n");
+            printf("  -s start irradiation at [sec] (default %.3e sec)\n", RSTART);
             printf("\n");
             exit(0);
             break;
@@ -109,7 +107,7 @@ int main(int argc, char **argv) {
     }
 
     period = 1 / freq;
-    dpulse = (doser / 60.0) / freq * EVJ; /* in eV per pulse per liter */
+    dose_per_pulse = (doserate / 60.0) / freq * EVJ; /* in eV per pulse per liter */
 
 
     if (period < resol) {
@@ -119,10 +117,10 @@ int main(int argc, char **argv) {
     }
 
     /* find tick size closest to the requested one */
-    tick = period/(round(period/ resol));
+    tick = period / (round(period / resol));
 
     /* number of pulses to be simulated */
-    pulse_left = (int) ((simtime-RSTART) * freq);
+    pulses_left = (int) ((simtime - rstart) * freq) + 1;
 
     /* print a header */
     printf("# Frequency    : %.3e Hz \n", freq);
@@ -131,19 +129,18 @@ int main(int argc, char **argv) {
     printf("# Tick size    : %.3e sec\n", tick);
     printf("# Time for sim : %.3e sec\n", simtime);
     printf("#\n");
-    printf("# Dose rate    : %.3e Gy/min\n", doser );
-    printf("# Pulse size   : %.3e eV/l/pulse\n", dpulse );
-    printf("# Pulse count  : %i pulses\n", pulse_left);
+    printf("# Average dose rate    : %.3e Gy/min\n", doserate );
+    printf("# Pulse size   : %.3e eV/l/pulse\n", dose_per_pulse );
+    printf("# Pulse count  : %i pulses\n", pulses_left);
     printf("#\n");
     printf("# Total delivered dose for this simulation\n");
-    printf("#              : %.6e Gy \n", pulse_left * dpulse / EVJ);
+    printf("#              : %.6e Gy \n", pulses_left * dose_per_pulse / EVJ);
     printf("#\n");
 
 
     /* if input file is given with starting conditions, then load these,
        otherwise use the model default values. */
     if (optind < argc) {
-        printf("non-option ARGV-elements: ");
         load_default_conc(argv[optind], y, NSPECIES);
     }
     else {
@@ -155,20 +152,18 @@ int main(int argc, char **argv) {
     /* Print first line with starting conditions. */
     nbeprint(t, y, NSPECIES);
 
-    exit(0);
-
     /* loop over all pulses */
-    while (pulse_left != 0) {
+    while (pulses_left != -1 && ti < simtime) {
 
         /* check if we are at a pulse time step */
-        if (t >= ((pulse_counter * period) + RSTART)) {
+        if (t >= ((pulse_counter * period) + rstart)) {
             if (flagp) /* print per pulse (pre pulse) */
                 nbeprint(t, y, NSPECIES);
 
-            printf("# Pulse! %i \n", pulse_left);
+            printf("# Pulse! %i \n", pulses_left);
             for (j=0; j < NSPECIES; j++)
-                y[j] += dpulse * gval[j] * 0.01 / NA;
-            pulse_left--;
+                y[j] += dose_per_pulse * gval[j] * 0.01 / NA;
+            pulses_left--;
             pulse_counter++;
         }
 
@@ -269,7 +264,7 @@ int load_default_conc(const char *fname, double *y, int n) {
 
     fp = fopen(fname, "r");
     if (fp == NULL) {
-        printf("Error: cannot open file %s\n", fname);
+        fprintf(stderr, "Error: cannot open file %s\n", fname);
         exit(-1);
     }
 
@@ -277,9 +272,6 @@ int load_default_conc(const char *fname, double *y, int n) {
         // Check if the line starts with a digit (simple filter for comments)
         if (sscanf(line, "%lf", &val) == 1) {
             y[i++] = val;
-        } else {
-            // Optionally handle lines that don't start with a number or are just comments
-            printf("Skipping non-numeric or comment line: %s", line);
         }
     }
 
@@ -287,7 +279,7 @@ int load_default_conc(const char *fname, double *y, int n) {
 
     // Check if we have loaded enough values
     if (i != n) {
-        printf("Warning: expected %d values, but only %d were loaded from file %s.\n", n, i, fname);
+        fprintf(stderr,"Warning: expected %d values, but only %d were loaded from file %s.\n", n, i, fname);
         return 1; // Return error code if not all data could be loaded
     }
 
