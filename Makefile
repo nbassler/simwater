@@ -1,5 +1,4 @@
 TARGET1   = h2ocalc
-TARGET2   = time
 
 CC       = gcc
 CFLAGS   = -Wall -I.
@@ -8,7 +7,7 @@ LFLAGS   = -lgsl -lgslcblas -lm
 SRCDIR   = src
 OBJDIR   = obj
 
-TARGETS  := $(TARGET1) $(TARGET2)
+TARGETS  := $(TARGET1)
 SOURCES  := $(wildcard $(SRCDIR)/*.c)
 INCLUDES := $(wildcard $(SRCDIR)/*.h)
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)

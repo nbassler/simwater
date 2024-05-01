@@ -18,71 +18,10 @@
 /*   float b[NEQ]; */
 /* }; */
 
-int nbprint(double x, double y[], int n) {
-    int i;
-    double sum = 0;
-    printf("%6.4f   ", x);
-    for (i = 0; i < n; i++) {
-        printf("%6.2f ", y[i]);
-        sum += y[i];
-    }
-    printf("  %6.2f\n",sum);
-    return 0;
-}
-
-
-int nbeprint(double x, double y[], int n) {
-    int i;
-    double sum = 0;
-
-    printf("%6.4e   ",x);
-    for (i = 0; i < n; i++) {
-        printf("%6.2e ", y[i]);
-        sum += y[i];
-    }
-    printf("  %6.2e\n", sum);
-    return 0;
-}
-
-
-int func (double t, const double y[],double f[], void *params) {
-    // struct ODE_param *p = (struct ODE_params *) params;
-    int i,j,k;
-    double rate[NEQ];
-
-    /* for each species ... */
-    for (k = 0; k < NSPECIES; k++) {
-
-        f[k] = 0;
-
-        /* ...find all contributing and removing things */
-
-        for (j = 0; j < NEQ; j++) {
-
-            if (nmatrix[j][k] != 0) {
-
-                rate[j] = nmatrix [j][k]; /* build the final equation */
-
-                /* add generate I equations */
-                rate[j] *= rconst[j]; /* get rate for reaction I_j */
-
-                for (i = 0; i < NSPECIES; i++) {
-                    if (nmatrix[j][i] == -1 ) {
-                        rate[j] *= y[i]; /* first order kinetics */
-                    }
-                    if (nmatrix[j][i] == -2 ) {
-                        rate[j] *= y[i]*y[i]; // second order kinetics
-                    }
-                }
-
-                f[k] += rate[j];
-            }
-        }
-    }
-
-    return GSL_SUCCESS;
-}
-
+int nbprint(double x, double y[], int n);
+int nbeprint(double x, double y[], int n);
+int func (double t, const double y[],double f[], void *params);
+int load_default_conc(const char *fname, double *y, int n);
 
 int main(int argc, char **argv) {
     //  struct ODE_param *p = (struct ODE_params *) params;
@@ -169,7 +108,6 @@ int main(int argc, char **argv) {
         }
     }
 
-
     period = 1 / freq;
     dpulse = (doser / 60.0) / freq * EVJ; /* in eV per pulse per liter */
 
@@ -201,12 +139,23 @@ int main(int argc, char **argv) {
     printf("#              : %.6e Gy \n", pulse_left * dpulse / EVJ);
     printf("#\n");
 
-    /* copy start conditions into working array */
-    for (i = 0; i < NSPECIES; i++)
-        y[i] = ystart[i];
+
+    /* if input file is given with starting conditions, then load these,
+       otherwise use the model default values. */
+    if (optind < argc) {
+        printf("non-option ARGV-elements: ");
+        load_default_conc(argv[optind], y, NSPECIES);
+    }
+    else {
+        /* copy start conditions into working array */
+        for (i = 0; i < NSPECIES; i++)
+            y[i] = ystart[i];
+    }
 
     /* Print first line with starting conditions. */
     nbeprint(t, y, NSPECIES);
+
+    exit(0);
 
     /* loop over all pulses */
     while (pulse_left != 0) {
@@ -245,3 +194,102 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+
+int nbprint(double x, double y[], int n) {
+    int i;
+    double sum = 0;
+    printf("%6.4f   ", x);
+    for (i = 0; i < n; i++) {
+        printf("%6.2f ", y[i]);
+        sum += y[i];
+    }
+    printf("  %6.2f\n",sum);
+    return 0;
+}
+
+
+int nbeprint(double x, double y[], int n) {
+    int i;
+    double sum = 0;
+
+    printf("%6.4e   ",x);
+    for (i = 0; i < n; i++) {
+        printf("%6.2e ", y[i]);
+        sum += y[i];
+    }
+    printf("  %6.2e\n", sum);
+    return 0;
+}
+
+
+int func (double t, const double y[],double f[], void *params) {
+    // struct ODE_param *p = (struct ODE_params *) params;
+    int i,j,k;
+    double rate[NEQ];
+
+    /* for each species ... */
+    for (k = 0; k < NSPECIES; k++) {
+
+        f[k] = 0;
+
+        /* ...find all contributing and removing things */
+
+        for (j = 0; j < NEQ; j++) {
+
+            if (nmatrix[j][k] != 0) {
+
+                rate[j] = nmatrix [j][k]; /* build the final equation */
+
+                /* add generate I equations */
+                rate[j] *= rconst[j]; /* get rate for reaction I_j */
+
+                for (i = 0; i < NSPECIES; i++) {
+                    if (nmatrix[j][i] == -1 ) {
+                        rate[j] *= y[i]; /* first order kinetics */
+                    }
+                    if (nmatrix[j][i] == -2 ) {
+                        rate[j] *= y[i]*y[i]; // second order kinetics
+                    }
+                }
+
+                f[k] += rate[j];
+            }
+        }
+    }
+
+    return GSL_SUCCESS;
+}
+
+
+int load_default_conc(const char *fname, double *y, int n) {
+    FILE *fp;
+    char line[256]; // Buffer to store each line
+    int i = 0;
+    double val;
+
+    fp = fopen(fname, "r");
+    if (fp == NULL) {
+        printf("Error: cannot open file %s\n", fname);
+        exit(-1);
+    }
+
+    while (i < n && fgets(line, sizeof(line), fp) != NULL) {
+        // Check if the line starts with a digit (simple filter for comments)
+        if (sscanf(line, "%lf", &val) == 1) {
+            y[i++] = val;
+        } else {
+            // Optionally handle lines that don't start with a number or are just comments
+            printf("Skipping non-numeric or comment line: %s", line);
+        }
+    }
+
+    fclose(fp);
+
+    // Check if we have loaded enough values
+    if (i != n) {
+        printf("Warning: expected %d values, but only %d were loaded from file %s.\n", n, i, fname);
+        return 1; // Return error code if not all data could be loaded
+    }
+
+    return 0;
+}

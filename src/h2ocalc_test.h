@@ -20,7 +20,7 @@ static const float ystart[NSPECIES] = {
 };
 
 
-/* sochiometric matrix */
+/* stoichiometric matrix */
 
 /*     A0 A1 A2 A3 .... */
 /* v0                   */

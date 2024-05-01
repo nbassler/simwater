@@ -2,7 +2,7 @@
 #define H2OCALC_2002
 
 /* Configuration for water model at 4 deg C
-   Niels Bassler <niels.bassler@fysik.su.se>
+   Niels Bassler
 
    Reference: https://dx.doi.org/10.6028%2Fjres.107.015
  */
@@ -51,7 +51,7 @@ static const float gval[NSPECIES] = {
     0        /* A13 : O3-  */
 };
 
-/* sochiometric matrix */
+/* stoichiometric matrix */
 
 /*     A0 A1 A2 A3 .... */
 /* v0                   */

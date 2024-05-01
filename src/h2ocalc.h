@@ -2,7 +2,7 @@
 #define H2OCALC
 
 /* Configuration for water model.
-   Niels Bassler <niels.bassler@fysik.su.se>
+   Niels Bassler
 
    Reference: https://dx.doi.org/10.6028%2Fjres.102.006
  */
@@ -51,7 +51,7 @@ static const float gval[NSPECIES] = {
     0       /* A13 : O3-  */
 };
 
-/* sochiometric matrix */
+/* stoichiometric matrix */
 
 /*     A0 A1 A2 A3 .... */
 /* v0                   */
@@ -132,7 +132,7 @@ static const int nmatrix[NEQ][NSPECIES] = {
     { 0, 0, 1,-1, 1,    0,-1, 0, 1, 0,    0, 0, 0, 0},/* HO2  + H2O2 -> OH   + H2O + O2 */
     { 0, 0, 1,-1, 1,   -1, 0, 0, 0, 1,    0, 0, 0, 0},/* O2-  + H2O2 -> OH-  + OH  + O2 */
 
-    /* irradiation: creation of aquaous electrons */
+    /* irradiation: creation of aqueous electrons */
     { 1, 0, 0, 0, 0,    0, 0, 0, 0, 0,    0, 0, 0, 0}/*             -> e-              */
 };
 
